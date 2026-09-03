@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "file": "logo_bayard.png",
+  "source": "official",
+  "method": "official",
+  "url": "https://www.groupebayard.com/wp-content/uploads/logo_bayard.png",
+  "has_alpha": true,
+  "width": 297,
+  "height": 80,
+  "from_svg": false,
+  "kind": "clients",
+  "slug": "bayard",
+  "errors": []
+}
