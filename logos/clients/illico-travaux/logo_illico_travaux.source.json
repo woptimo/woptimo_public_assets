@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "file": "logo_illico_travaux.svg",
+  "source": "official",
+  "method": "official",
+  "url": "https://www.illico-travaux.com/",
+  "has_alpha": true,
+  "width": 924,
+  "height": 214,
+  "from_svg": true,
+  "kind": "clients",
+  "slug": "illico-travaux",
+  "note": "SVG inline de l'en-tête du site (a.logo), extrait tel quel le 2026-10-02, marine #12284B.",
+  "errors": []
+}

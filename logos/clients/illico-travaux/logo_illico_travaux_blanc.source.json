@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "file": "logo_illico_travaux_blanc.svg",
+  "source": "official",
+  "method": "derived",
+  "url": "https://www.illico-travaux.com/",
+  "has_alpha": true,
+  "width": 924,
+  "height": 214,
+  "from_svg": true,
+  "kind": "clients",
+  "slug": "illico-travaux",
+  "note": "Variante pour fonds sombres : logo_illico_travaux.svg avec le remplissage #12284B passé en #FFFFFF.",
+  "errors": []
+}
