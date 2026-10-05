@@ -10,6 +10,6 @@
   "from_svg": true,
   "kind": "clients",
   "slug": "illico-travaux",
-  "note": "SVG inline de l'en-tête du site (a.logo), extrait tel quel le 2026-10-02, marine #12284B.",
+  "note": "SVG inline de l'en-tête du site (a.logo), extrait tel quel le 2026-10-02, marine #12284B. Remplacé par logo_illico_travaux_horizontal_gh.svg (fichier officiel de la charte graphique 2026) ; conservé tel quel pour les supports qui pointent déjà vers cette URL.",
   "errors": []
 }

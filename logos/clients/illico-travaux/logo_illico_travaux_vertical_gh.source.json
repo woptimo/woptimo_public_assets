@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "file": "logo_illico_travaux_vertical_gh.svg",
+  "source": "official",
+  "method": "official",
+  "url": "https://www.illico-travaux.com/",
+  "has_alpha": true,
+  "width": 402,
+  "height": 348,
+  "from_svg": true,
+  "kind": "clients",
+  "slug": "illico-travaux",
+  "note": "Logo vertical avec mention « Groupe HEXAOM », bleu illiCO (version par défaut de la charte pour ITF, p. 6-7 ; largeur min. écran 136 px). Charte graphique illiCO travaux 2026 (fichier « illiCOtravaux bleu vertical GH_VECTORISE PDF_Partie5.pdf », Logos/Vectorisé PDF), PDF vectoriel converti en SVG avec PyMuPDF et recadré au contenu, sans autre modification (remplissage #11284B).",
+  "errors": []
+}
