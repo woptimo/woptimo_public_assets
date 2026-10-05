@@ -10,6 +10,6 @@
   "from_svg": true,
   "kind": "clients",
   "slug": "illico-travaux",
-  "note": "Variante pour fonds sombres : logo_illico_travaux.svg avec le remplissage #12284B passé en #FFFFFF.",
+  "note": "Variante pour fonds sombres : logo_illico_travaux.svg avec le remplissage #12284B passé en #FFFFFF. Remplacé par logo_illico_travaux_horizontal_gh_blanc.svg (fichier officiel de la charte graphique 2026) ; conservé tel quel pour les supports qui pointent déjà vers cette URL.",
   "errors": []
 }
