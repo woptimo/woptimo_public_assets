@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "source": "official",
+  "method": "official",
+  "url": "https://www.carredartistes.com/fr-fr/ximg/logo.svg",
+  "has_alpha": true,
+  "width": 835,
+  "height": 225,
+  "from_svg": true,
+  "kind": "clients",
+  "slug": "carre-d-artistes",
+  "errors": [],
+  "file": "logo_carre_d_artistes_blanc.svg",
+  "note": "Logo horizontal officiel de www.carredartistes.com (fichier « logo-noir-horizontal », téléchargé le 2026-10-06), passé en blanc : seul ajout, fill=\"#FFFFFF\" sur l'élément svg (les tracés héritent du remplissage) et titre « logo-blanc-horizontal ». Pour fonds noirs (barre latérale du dashboard)."
+}
