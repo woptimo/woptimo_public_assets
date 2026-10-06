@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "file": "logo_illico_travaux_vertical_gh_blanc.svg",
+  "source": "official",
+  "method": "official",
+  "url": "https://www.illico-travaux.com/",
+  "has_alpha": true,
+  "width": 402,
+  "height": 348,
+  "from_svg": true,
+  "kind": "clients",
+  "slug": "illico-travaux",
+  "note": "Logo vertical avec mention « Groupe HEXAOM », blanc, pour fonds bleu illiCO (largeur min. écran 136 px). Charte graphique illiCO travaux 2026 (fichier « illiCOtravaux blanc vertical GH_VECTORISE PDF_Partie12.pdf », Logos/Vectorisé PDF), PDF vectoriel converti en SVG avec PyMuPDF et recadré au contenu, sans autre modification (remplissage #FFFFFF).",
+  "errors": []
+}
