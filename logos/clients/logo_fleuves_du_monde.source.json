@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "file": "logo_fleuves_du_monde.png",
+  "source": "official",
+  "method": "download",
+  "url": "https://www.fleuves-du-monde.com/web/image/website/4/logo/FDM?unique=945b6a0",
+  "has_alpha": true,
+  "width": 193,
+  "height": 50,
+  "from_svg": false,
+  "kind": "clients",
+  "slug": "fleuves_du_monde",
+  "errors": []
+}
