@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "file": "logo_esprit_padel_shop.png",
+  "source": "official",
+  "method": "download",
+  "url": "https://esprit-padel-shop.com/cdn/shop/files/logolong2_e0b613aa-1002-42e9-89c3-92105d54c690.svg?v=1755703573",
+  "has_alpha": true,
+  "width": 1384,
+  "height": 540,
+  "from_svg": true,
+  "kind": "clients",
+  "slug": "esprit_padel_shop",
+  "errors": []
+}
