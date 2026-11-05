@@ -24,18 +24,26 @@
  *   WCollect.identify('user-123', { email: 'user@example.com' });
  *   WCollect.setConsent({ analytics: true, marketing: false });
  *
+ * Sans cookie WCollect (GGB) : l'identifiant est le visitor id Matomo,
+ * lu dans `_pk_id.<siteId>.*`. Aucun envoi tant que ce cookie n'existe pas.
+ *   WCollect.init({
+ *     projectId: 'ggbearings_web',
+ *     idSource: 'matomo',
+ *     matomoSiteId: '1'
+ *   });
+ *
  * L'hôte de collecte est figé : thx.woptimo.com (HTTPS). Un `endpoint`
  * optionnel n'est accepté que s'il pointe vers cet hôte.
  *
  * File d'attente avant chargement :
  *   window.WCollect = window.WCollect || function () { (WCollect.q = WCollect.q || []).push(arguments); };
  *
- * @version 1.1.0
+ * @version 1.2.0
  */
 (function (window, document) {
     'use strict';
 
-    var SDK_VERSION = '1.1.0';
+    var SDK_VERSION = '1.2.0';
     var COLLECT_URL = 'https://thx.woptimo.com/wcollect';
     var ALLOWED_HOST = 'thx.woptimo.com';
     var DEFAULT_PATH = '/wcollect';
@@ -46,6 +54,8 @@
     var BATCH_MAX_EVENTS = 10;
     var BATCH_MAX_BYTES = 60000;
     var FLUSH_MS = 2000;
+    var MATOMO_POLL_MS = 250;
+    var MATOMO_WAIT_MS = 20000;
     var TEXT_PLAIN = 'text/plain;charset=UTF-8';
     var SENSITIVE_QS = {
         password: 1, passwd: 1, pwd: 1, email: 1, mail: 1, token: 1,
@@ -75,6 +85,12 @@
         sending: false,
         anonymousId: '',
         deviceId: '',
+        idSource: 'cookie',
+        matomoSiteId: '',
+        idReady: false,
+        matomoTimer: null,
+        matomoWaitStarted: 0,
+        matomoHooked: false,
         userId: null,
         userProperties: {},
         userData: {},
@@ -132,7 +148,7 @@
                 }
             }
         } catch (e) { /* ignore */ }
-        if (flag) {
+        if (flag && state.idSource !== 'matomo') {
             writeCookie(COOKIE_AID, 'optout', AID_MAX_AGE_SEC);
         }
     }
@@ -190,6 +206,120 @@
         }
         return hex.slice(0, 8) + '-' + hex.slice(8, 12) + '-' +
             hex.slice(12, 16) + '-' + hex.slice(16, 20) + '-' + hex.slice(20);
+    }
+
+    function readMatomoVisitorId() {
+        var prefix = state.matomoSiteId
+            ? ('_pk_id.' + state.matomoSiteId + '.')
+            : '_pk_id.';
+        var jar = document.cookie ? String(document.cookie).split(';') : [];
+        var i;
+        var part;
+        var eq;
+        var name;
+        var value;
+        var id;
+        for (i = 0; i < jar.length; i++) {
+            part = jar[i].replace(/^\s+|\s+$/g, '');
+            eq = part.indexOf('=');
+            if (eq < 1) {
+                continue;
+            }
+            name = part.slice(0, eq);
+            if (name.indexOf(prefix) !== 0) {
+                continue;
+            }
+            try {
+                value = decodeURIComponent(part.slice(eq + 1));
+            } catch (e) {
+                value = part.slice(eq + 1);
+            }
+            id = (value.split('.')[0] || '').replace(/^\s+|\s+$/g, '');
+            if (/^[a-f0-9]{16}$/i.test(id)) {
+                return id;
+            }
+        }
+        return '';
+    }
+
+    function readGaClientId() {
+        var raw = readCookie('_ga');
+        if (!raw) {
+            return '';
+        }
+        var parts = raw.split('.');
+        if (parts.length < 4) {
+            return '';
+        }
+        var clientA = parts[parts.length - 2];
+        var clientB = parts[parts.length - 1];
+        if (!clientA || !clientB) {
+            return '';
+        }
+        return clientA + '.' + clientB;
+    }
+
+    function stopMatomoWait() {
+        if (state.matomoTimer) {
+            window.clearInterval(state.matomoTimer);
+            state.matomoTimer = null;
+        }
+    }
+
+    function ensureMatomoId() {
+        if (state.idSource !== 'matomo') {
+            return true;
+        }
+        if (state.idReady && state.anonymousId) {
+            return true;
+        }
+        var id = readMatomoVisitorId();
+        if (!id) {
+            return false;
+        }
+        state.anonymousId = id;
+        state.deviceId = id;
+        state.idReady = true;
+        log('matomo id', id);
+        return true;
+    }
+
+    function hookMatomoReady() {
+        if (state.matomoHooked) {
+            return;
+        }
+        state.matomoHooked = true;
+        try {
+            var paq = window._paq = window._paq || [];
+            paq.push([function () {
+                if (ensureMatomoId()) {
+                    stopMatomoWait();
+                    flush();
+                }
+            }]);
+        } catch (e) {
+            log('matomo hook failed', e);
+        }
+    }
+
+    function armMatomoWait() {
+        hookMatomoReady();
+        if (state.matomoTimer) {
+            return;
+        }
+        state.matomoWaitStarted = Date.now();
+        state.matomoTimer = window.setInterval(function () {
+            if (ensureMatomoId()) {
+                stopMatomoWait();
+                flush();
+                return;
+            }
+            if (Date.now() - state.matomoWaitStarted > MATOMO_WAIT_MS) {
+                stopMatomoWait();
+                log('matomo id absent, envoi annulé', state.queue.length);
+                state.queue = [];
+            }
+        }, MATOMO_POLL_MS);
     }
 
     function getOrCreateAnonymousId() {
@@ -570,11 +700,15 @@
             device.hardwareConcurrency = c.hardwareConcurrency;
         }
 
+        var sdk = {
+            version: SDK_VERSION,
+            name: 'wcollect'
+        };
+        if (state.idSource === 'matomo') {
+            sdk.idSource = 'matomo';
+        }
         var ctx = {
-            sdk: {
-                version: SDK_VERSION,
-                name: 'wcollect'
-            },
+            sdk: sdk,
             device: device
         };
         if (c.network && (c.network.effectiveType || c.network.downlink || c.network.rtt)) {
@@ -593,6 +727,22 @@
         }
         if (state.userProperties && hasKeys(state.userProperties)) {
             user.properties = state.userProperties;
+        }
+        if (state.idSource === 'matomo') {
+            var gaId = readGaClientId();
+            if (gaId) {
+                var props = {};
+                var propKey;
+                if (user.properties) {
+                    for (propKey in user.properties) {
+                        if (Object.prototype.hasOwnProperty.call(user.properties, propKey)) {
+                            props[propKey] = user.properties[propKey];
+                        }
+                    }
+                }
+                props.gaClientId = gaId;
+                user.properties = props;
+            }
         }
         if (state.userData && hasKeys(state.userData)) {
             user.userData = state.userData;
@@ -791,6 +941,10 @@
         }
         if (!state.consent.analytics && !force) {
             state.queue = [];
+            return;
+        }
+        if (state.idSource === 'matomo' && !ensureMatomoId()) {
+            armMatomoWait();
             return;
         }
         while (state.queue.length) {
@@ -1085,8 +1239,18 @@
             identify(options.userId, options.traits || {});
         }
 
-        state.anonymousId = getOrCreateAnonymousId();
-        state.deviceId = state.anonymousId;
+        state.idSource = options.idSource === 'matomo' ? 'matomo' : 'cookie';
+        state.matomoSiteId = options.matomoSiteId ? String(options.matomoSiteId) : '';
+        if (state.idSource === 'matomo') {
+            state.anonymousId = '';
+            state.deviceId = '';
+            state.idReady = false;
+            ensureMatomoId();
+        } else {
+            state.anonymousId = getOrCreateAnonymousId();
+            state.deviceId = state.anonymousId;
+            state.idReady = true;
+        }
         cacheStaticContext();
         state.ready = true;
         bindLifecycle();
@@ -1094,7 +1258,10 @@
         if (state.autoPageView) {
             trackPageView();
         }
-        log('init', state.projectId, state.anonymousId);
+        if (state.idSource === 'matomo' && !state.idReady) {
+            armMatomoWait();
+        }
+        log('init', state.projectId, state.anonymousId || '(en attente Matomo)');
         return api;
     }
 
